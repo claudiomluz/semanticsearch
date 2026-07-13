@@ -32,7 +32,8 @@ with header_l:
     st.caption(t("caption", lang, dataset=DATASET, llm=OLLAMA_MODEL))
 with header_r:
     st.link_button(
-        t("help_button", lang), "/app/static/help.html", use_container_width=True
+        t("help_button", lang), f"/app/static/help.html?lang={lang}",
+        use_container_width=True,
     )
 
 # --- Controles ---
