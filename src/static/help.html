@@ -82,6 +82,8 @@
   details.faq .answer p { margin: 8px 0; }
   details.faq .answer ul { margin: 8px 0; padding-left: 20px; }
   details.faq .answer li { margin: 4px 0; }
+  h3.faqgroup { margin: 30px 0 10px; color: var(--accent); font-size: .8rem;
+                text-transform: uppercase; letter-spacing: 1px; }
 
   /* Alternância de idioma por CSS */
   html[data-lang="pt"] .lang-en { display: none; }
@@ -323,6 +325,8 @@
 
   <!-- ===== FAQ ===== -->
   <h2>FAQ</h2>
+
+  <h3 class="faqgroup"><span class="lang-pt">Indexação</span><span class="lang-en">Indexing</span></h3>
 
   <!-- Dataset — PT -->
   <details class="faq lang-pt">
@@ -820,6 +824,176 @@
       folder). Our ~3,600 vectors take up ~37 MB. The database survives restarting the app, so there is no need
       to reindex every time. Its size scales with the embedding dimensions: with a 768d model, the database
       would double.</p>
+    </div>
+  </details>
+
+  <h3 class="faqgroup"><span class="lang-pt">Consulta</span><span class="lang-en">Query</span></h3>
+
+  <!-- Resultado estruturado — PT -->
+  <details class="faq lang-pt">
+    <summary>O que é o "resultado estruturado" da busca?</summary>
+    <div class="answer">
+      <p>É a saída do <strong>caminho de Busca</strong> — o modo não conversacional. A consulta do usuário
+      é transformada em vetor, o banco devolve os trechos mais próximos, e cada um é mostrado como um item
+      com atributos, <strong>sem passar por nenhum LLM</strong>. É recuperação pura.</p>
+      <p>Cada resultado traz:</p>
+      <ul>
+        <li><strong>título</strong> do artigo de origem;</li>
+        <li><strong>categoria</strong> (business, sport, tech…);</li>
+        <li><strong>score de similaridade</strong> — quão perto o trecho está da consulta (1 = idêntico);</li>
+        <li><strong>trecho</strong> do texto que casou.</li>
+      </ul>
+      <p>Serve quando você quer <strong>ver e comparar os itens</strong> que casaram e seus atributos —
+      inspecionar os scores, conferir de que categoria vieram, olhar vários resultados lado a lado. É o
+      oposto do chat: aqui não há resposta redigida, e sim a lista crua do que o banco encontrou.</p>
+    </div>
+  </details>
+  <!-- Resultado estruturado — EN -->
+  <details class="faq lang-en">
+    <summary>What is the "structured result" of search?</summary>
+    <div class="answer">
+      <p>It is the output of the <strong>Search path</strong> — the non-conversational mode. The user's query
+      is turned into a vector, the database returns the nearest excerpts, and each is shown as an item with
+      attributes, <strong>without going through any LLM</strong>. It is pure retrieval.</p>
+      <p>Each result carries:</p>
+      <ul>
+        <li>the <strong>title</strong> of the source article;</li>
+        <li>the <strong>category</strong> (business, sport, tech…);</li>
+        <li>the <strong>similarity score</strong> — how close the excerpt is to the query (1 = identical);</li>
+        <li>the matched <strong>excerpt</strong> of text.</li>
+      </ul>
+      <p>It is useful when you want to <strong>see and compare the items</strong> that matched and their
+      attributes — inspect the scores, check which category they came from, look at several results side by
+      side. It is the opposite of chat: here there is no written answer, just the raw list of what the
+      database found.</p>
+    </div>
+  </details>
+
+  <!-- Monta prompt — PT -->
+  <details class="faq lang-pt">
+    <summary>Como o chat monta o prompt com os trechos?</summary>
+    <div class="answer">
+      <p>No <strong>caminho de Chat (RAG)</strong>, a recuperação é igual à da busca: a pergunta vira vetor e
+      o banco devolve os trechos mais próximos. A diferença vem <strong>depois</strong>: em vez de mostrar os
+      trechos crus, eles são <strong>reunidos num contexto e colados dentro do prompt</strong> enviado ao LLM.</p>
+      <p>O prompt montado junta três coisas:</p>
+      <ul>
+        <li>os <strong>trechos recuperados</strong> (o contexto);</li>
+        <li>a <strong>pergunta</strong> do usuário;</li>
+        <li>uma <strong>instrução</strong>: responder usando apenas os trechos, citar as fontes e escrever no
+        idioma escolhido.</li>
+      </ul>
+      <p>É esse passo que "ancora" o modelo: ele não responde de memória, e sim com base no material entregue.
+      É a essência do RAG (<em>Retrieval-Augmented Generation</em>) — dar ao LLM fontes reais para reduzir
+      invenção (alucinação).</p>
+    </div>
+  </details>
+  <!-- Monta prompt — EN -->
+  <details class="faq lang-en">
+    <summary>How does chat build the prompt with the excerpts?</summary>
+    <div class="answer">
+      <p>In the <strong>Chat (RAG) path</strong>, retrieval is the same as in search: the question becomes a
+      vector and the database returns the nearest excerpts. The difference comes <strong>afterwards</strong>:
+      instead of showing the raw excerpts, they are <strong>gathered into a context and pasted inside the
+      prompt</strong> sent to the LLM.</p>
+      <p>The assembled prompt combines three things:</p>
+      <ul>
+        <li>the <strong>retrieved excerpts</strong> (the context);</li>
+        <li>the user's <strong>question</strong>;</li>
+        <li>an <strong>instruction</strong>: answer using only the excerpts, cite the sources, and write in the
+        chosen language.</li>
+      </ul>
+      <p>This step is what "grounds" the model: it does not answer from memory, but based on the material it was
+      handed. This is the essence of RAG (<em>Retrieval-Augmented Generation</em>) — giving the LLM real sources
+      to reduce making things up (hallucination).</p>
+    </div>
+  </details>
+
+  <!-- LLM local — PT -->
+  <details class="faq lang-pt">
+    <summary>O que é o LLM local (Ollama) e por que ele, e não o MiniLM?</summary>
+    <div class="answer">
+      <p>O <strong>Ollama</strong> é uma ferramenta que roda modelos de linguagem (LLMs) na própria máquina,
+      sem nuvem nem chave de API. O modelo usado no chat é o <strong>qwen2.5:3b</strong>. Ele é quem
+      <strong>escreve</strong> a resposta conversacional.</p>
+      <p><strong>Por que não o MiniLM?</strong> Porque MiniLM e qwen fazem trabalhos diferentes. O MiniLM é um
+      modelo <em>encoder</em>: ele lê um texto e o comprime num vetor, para representar significado — não sabe
+      gerar texto. O qwen é um LLM <em>gerador</em>: produz texto palavra por palavra. Um representa, o outro
+      escreve.</p>
+      <table>
+        <tr><th></th><th>MiniLM (embedding)</th><th>qwen2.5:3b (LLM)</th></tr>
+        <tr><td>Função</td><td>texto → 1 vetor</td><td>texto → resposta escrita</td></tr>
+        <tr><td>Papel</td><td>representar para busca</td><td>conversar / redigir</td></tr>
+        <tr><td>Tamanho</td><td>~22 milhões de params</td><td>~3 bilhões de params</td></tr>
+        <tr><td>Saída</td><td>vetor de 384 números</td><td>sequência de palavras</td></tr>
+      </table>
+      <p>Ou seja: o MiniLM cuida da <strong>recuperação</strong> (achar os trechos) e o qwen cuida da
+      <strong>geração</strong> (redigir a resposta). São etapas complementares, não substitutas.</p>
+      <p><strong>Por que o qwen2.5:3b:</strong> precisávamos de um modelo que <em>gerasse</em> texto (o MiniLM
+      não gera), que fosse <strong>multilíngue</strong> — para responder bem em português — e que rodasse
+      <strong>local e de graça</strong>. O qwen2.5:3b equilibra isso: é pequeno o bastante para caber no disco
+      e rodar sem GPU dedicada, mas capaz o suficiente para respostas coerentes. Começamos com um modelo de 1
+      bilhão de parâmetros, mas ele rendia mal em português; a troca pelo qwen2.5:3b resolveu.</p>
+    </div>
+  </details>
+  <!-- LLM local — EN -->
+  <details class="faq lang-en">
+    <summary>What is the local LLM (Ollama), and why it instead of MiniLM?</summary>
+    <div class="answer">
+      <p><strong>Ollama</strong> is a tool that runs language models (LLMs) on your own machine, with no cloud
+      and no API key. The model used in chat is <strong>qwen2.5:3b</strong>. It is the one that
+      <strong>writes</strong> the conversational answer.</p>
+      <p><strong>Why not MiniLM?</strong> Because MiniLM and qwen do different jobs. MiniLM is an
+      <em>encoder</em> model: it reads a text and compresses it into a vector to represent meaning — it cannot
+      generate text. qwen is a <em>generative</em> LLM: it produces text word by word. One represents, the
+      other writes.</p>
+      <table>
+        <tr><th></th><th>MiniLM (embedding)</th><th>qwen2.5:3b (LLM)</th></tr>
+        <tr><td>Function</td><td>text → 1 vector</td><td>text → written answer</td></tr>
+        <tr><td>Role</td><td>represent for search</td><td>converse / write</td></tr>
+        <tr><td>Size</td><td>~22 million params</td><td>~3 billion params</td></tr>
+        <tr><td>Output</td><td>vector of 384 numbers</td><td>sequence of words</td></tr>
+      </table>
+      <p>So: MiniLM handles <strong>retrieval</strong> (finding the excerpts) and qwen handles
+      <strong>generation</strong> (writing the answer). They are complementary steps, not substitutes.</p>
+      <p><strong>Why qwen2.5:3b:</strong> we needed a model that could <em>generate</em> text (MiniLM cannot),
+      that was <strong>multilingual</strong> — to answer well in Portuguese — and that ran <strong>locally and
+      for free</strong>. qwen2.5:3b balances this: small enough to fit on disk and run without a dedicated GPU,
+      yet capable enough for coherent answers. We started with a 1-billion-parameter model, but it performed
+      poorly in Portuguese; switching to qwen2.5:3b fixed it.</p>
+    </div>
+  </details>
+
+  <!-- Resposta + fontes — PT -->
+  <details class="faq lang-pt">
+    <summary>O que é a "resposta + fontes"?</summary>
+    <div class="answer">
+      <p>É a saída final do <strong>caminho de Chat</strong>. O LLM devolve uma <strong>resposta em linguagem
+      natural</strong>, redigida com base nos trechos recuperados, e a interface mostra também os
+      <strong>trechos-fonte</strong> que foram usados (com título, categoria e score), num painel que pode ser
+      expandido.</p>
+      <p>Mostrar as fontes junto tem um motivo: <strong>rastreabilidade</strong>. Você consegue conferir de
+      onde a resposta veio e se ela realmente bate com o material recuperado — em vez de confiar cegamente no
+      texto gerado. É o que diferencia uma resposta ancorada de um "chute" do modelo.</p>
+      <p>Resumindo o contraste dos dois caminhos: a <strong>Busca</strong> entrega os itens crus para você
+      interpretar; o <strong>Chat</strong> entrega uma resposta já redigida <em>mais</em> as fontes por trás
+      dela.</p>
+    </div>
+  </details>
+  <!-- Resposta + fontes — EN -->
+  <details class="faq lang-en">
+    <summary>What is the "answer + sources"?</summary>
+    <div class="answer">
+      <p>It is the final output of the <strong>Chat path</strong>. The LLM returns a <strong>natural-language
+      answer</strong>, written based on the retrieved excerpts, and the interface also shows the
+      <strong>source excerpts</strong> that were used (with title, category, and score), in a panel that can be
+      expanded.</p>
+      <p>Showing the sources alongside has a purpose: <strong>traceability</strong>. You can check where the
+      answer came from and whether it actually matches the retrieved material — instead of blindly trusting the
+      generated text. This is what separates a grounded answer from a model's "guess".</p>
+      <p>To sum up the contrast between the two paths: <strong>Search</strong> hands you the raw items to
+      interpret yourself; <strong>Chat</strong> hands you an already-written answer <em>plus</em> the sources
+      behind it.</p>
     </div>
   </details>
 
