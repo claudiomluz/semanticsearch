@@ -13,7 +13,7 @@ EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 DATASET = "bbc"
 
 # LLM local via Ollama para o caminho conversacional (RAG)
-OLLAMA_MODEL = "llama3.2:1b"
+OLLAMA_MODEL = "qwen2.5:3b"
 
 # Quantos vizinhos recuperar por padrão
 TOP_K = 5

@@ -29,10 +29,13 @@ def answer(query: str, top_k: int = TOP_K, lang: str = "en") -> dict:
     """
     chunks = search(query, top_k=top_k)
     context = build_context(chunks)
+    lang_name = LANG_NAME.get(lang, "English")
     user_msg = (
         f"News excerpts:\n\n{context}\n\n"
         f"Question: {query}\n\n"
-        "Answer based only on the excerpts above."
+        f"Answer based only on the excerpts above. "
+        f"Write your entire answer in {lang_name}, regardless of the language "
+        f"of the question or the excerpts."
     )
     resp = ollama.chat(
         model=OLLAMA_MODEL,

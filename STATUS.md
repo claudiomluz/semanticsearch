@@ -30,7 +30,8 @@ em desenvolvimento
 
 ## Notas de contexto
 - Embedding: all-MiniLM-L6-v2 (384 dims, inglês). Banco: ChromaDB persistente
-  em `data/chroma/` (git-ignored). LLM RAG: llama3.2:1b via Ollama.
+  em `data/chroma/` (git-ignored). LLM RAG: qwen2.5:3b via Ollama
+  (trocado do llama3.2:1b em 2026-07-13 por melhor qualidade em PT).
 - Dataset padrão: `SetFit/bbc-news` (~2k artigos, leve). Alternativa `ag_news`
   (~120k) via `--dataset ag_news --limit N`.
 - Similaridade = 1 - distância cosseno (coleção criada com hnsw:space=cosine).

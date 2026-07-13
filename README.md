@@ -15,7 +15,7 @@ Dois caminhos de interação:
 |---|---|
 | Embedding | `all-MiniLM-L6-v2` (sentence-transformers), local, 384 dims |
 | Banco vetorial | ChromaDB (persistente em disco) |
-| LLM (RAG) | `llama3.2:1b` via [Ollama](https://ollama.com) |
+| LLM (RAG) | `qwen2.5:3b` via [Ollama](https://ollama.com) |
 | Interface | Streamlit |
 | Dados | `SetFit/bbc-news` ou `ag_news` (HuggingFace datasets) |
 
@@ -31,7 +31,7 @@ Dois caminhos de interação:
 ./venv/bin/pip install -r requirements.txt
 
 # 2. Baixar o LLM local
-ollama pull llama3.2:1b
+ollama pull qwen2.5:3b
 
 # 3. Indexar os artigos no ChromaDB (bbc: ~2k artigos, leve)
 ./venv/bin/python src/ingest.py

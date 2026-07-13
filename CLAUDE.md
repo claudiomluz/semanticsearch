@@ -4,7 +4,7 @@ Projeto experimental de aprendizado sobre busca semântica com banco vetorial e 
 
 ## Ambiente
 - Python 3.13 em `venv/`. Sempre usar `./venv/bin/python` e `./venv/bin/pip`.
-- Ollama local rodando com modelo `llama3.2:1b`.
+- Ollama local rodando com modelo `qwen2.5:3b`.
 - Tudo local e grátis — sem chaves de API.
 
 ## Comandos
