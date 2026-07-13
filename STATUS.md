@@ -1,6 +1,6 @@
 # STATUS — Semantic Search POC
 
-> Última atualização: 2026-07-12
+> Última atualização: 2026-07-13
 
 ## Objetivo
 POC de aprendizado sobre busca semântica com banco vetorial e RAG, indexando
@@ -10,20 +10,20 @@ artigos jornalísticos em inglês, com interface para busca estruturada ou chat.
 em desenvolvimento
 
 ## Feito recentemente
-- [2026-07-12] Arquitetura definida e scaffold completo criado: config, db,
-  ingest, search, rag, app (Streamlit). venv Python 3.13 criado.
-- [2026-07-12] README, .gitignore, requirements.txt escritos.
+- [2026-07-13] Página de ajuda (`src/static/help.html`) com diagrama de
+  arquitetura em SVG (theme-aware), linkada do app via botão "📖 Ajuda".
+  Static serving do Streamlit habilitado em `.streamlit/config.toml`.
+- [2026-07-12] Scaffold completo, deps instaladas, dataset bbc-news indexado
+  (3594 chunks / 1225 artigos), busca e RAG validados ponta a ponta.
+- [2026-07-12] Commit inicial + push para o GitHub.
 
 ## Em andamento
-- Instalação das dependências (pip install -r requirements.txt).
-- Pull do modelo Ollama llama3.2:1b.
+- Nada aberto.
 
 ## Próximos passos
-1. `./venv/bin/pip install -r requirements.txt`
-2. `ollama pull llama3.2:1b`
-3. `./venv/bin/python src/ingest.py` (indexar bbc-news)
-4. Testar `search.py` e `rag.py` via CLI, depois `streamlit run src/app.py`
-5. Configurar git remote e primeiro commit.
+1. Expandir a página de ajuda (reindexação, troca de modelo, ajuste de top-K).
+2. Experimento: trocar embedding para `all-mpnet-base-v2` e comparar scores.
+3. Opcional: testar dataset `ag_news` (120k) para ver escala.
 
 ## Bloqueios / decisões pendentes
 - Nenhum. (torch precisa ter wheel para Python 3.13 — validar no pip install.)

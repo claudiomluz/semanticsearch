@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ajuda — Semantic Search POC</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #666;
+    --card: #f6f7f9; --border: #e3e6ea;
+    --accent: #4f6df5; --accent2: #12a150; --accent3: #d67c00;
+    --code-bg: #f0f2f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1116; --fg: #e6e8ec; --muted: #9aa0a8;
+      --card: #191c23; --border: #2a2f39;
+      --accent: #7d92ff; --accent2: #3ec77e; --accent3: #f0a94a;
+      --code-bg: #1c2028;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; }
+  h2 { font-size: 1.3rem; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+  h3 { font-size: 1.05rem; margin: 24px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 8px; }
+  a { color: var(--accent); }
+  code { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; font-size: .88em;
+         font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  pre { background: var(--code-bg); padding: 14px 16px; border-radius: 10px; overflow-x: auto;
+        border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; }
+  .diagram-box { background: var(--card); border: 1px solid var(--border);
+        border-radius: 14px; padding: 8px; margin: 16px 0; overflow-x: auto; }
+  svg { display: block; width: 100%; height: auto; min-width: 640px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin: 10px 2px 0; font-size: .85rem; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .back { display: inline-block; margin-bottom: 20px; color: var(--muted); text-decoration: none; font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; voltar para o app</a>
+  <h1>Semantic Search POC — Ajuda</h1>
+  <p class="sub">Como o projeto funciona por dentro: arquitetura, pipeline de indexação e os dois caminhos de consulta.</p>
+
+  <h2>Visão geral da arquitetura</h2>
+  <p>O sistema tem duas fases. A <strong>indexação</strong> roda uma vez, offline, e transforma
+  artigos em vetores guardados no banco vetorial. A <strong>consulta</strong> roda a cada pergunta
+  e se divide em dois caminhos: busca estruturada e chat conversacional (RAG).</p>
+
+  <div class="diagram-box">
+  <svg viewBox="0 0 760 620" role="img" aria-label="Diagrama de arquitetura do projeto">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+      </marker>
+      <style>
+        .box { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+        .lbl { fill: var(--fg); font: 600 13px -apple-system, sans-serif; }
+        .sm  { fill: var(--muted); font: 11px ui-monospace, monospace; }
+        .ln  { stroke: var(--muted); stroke-width: 1.6; fill: none; color: var(--muted); }
+        .phase { fill: var(--muted); font: 700 12px -apple-system, sans-serif; letter-spacing: .5px; }
+        .bIngest { stroke: var(--accent); }
+        .bSearch { stroke: var(--accent2); }
+        .bRag { stroke: var(--accent3); }
+      </style>
+    </defs>
+
+    <!-- INDEXACAO -->
+    <text x="20" y="28" class="phase">INDEXAÇÃO (offline, roda 1x — ingest.py)</text>
+    <rect class="box bIngest" x="20"  y="40" width="150" height="52" rx="9"/>
+    <text x="95" y="62" class="lbl" text-anchor="middle">Dataset</text>
+    <text x="95" y="80" class="sm" text-anchor="middle">bbc-news / ag_news</text>
+
+    <rect class="box bIngest" x="205" y="40" width="150" height="52" rx="9"/>
+    <text x="280" y="62" class="lbl" text-anchor="middle">Chunking</text>
+    <text x="280" y="80" class="sm" text-anchor="middle">180 palavras +30</text>
+
+    <rect class="box bIngest" x="390" y="40" width="150" height="52" rx="9"/>
+    <text x="465" y="62" class="lbl" text-anchor="middle">Embedding</text>
+    <text x="465" y="80" class="sm" text-anchor="middle">MiniLM · 384d</text>
+
+    <rect class="box bIngest" x="575" y="40" width="165" height="52" rx="9"/>
+    <text x="657" y="62" class="lbl" text-anchor="middle">ChromaDB</text>
+    <text x="657" y="80" class="sm" text-anchor="middle">vetor+texto+meta</text>
+
+    <line class="ln" x1="170" y1="66" x2="203" y2="66" marker-end="url(#arrow)"/>
+    <line class="ln" x1="355" y1="66" x2="388" y2="66" marker-end="url(#arrow)"/>
+    <line class="ln" x1="540" y1="66" x2="573" y2="66" marker-end="url(#arrow)"/>
+
+    <!-- store cylinder emphasis -->
+    <text x="657" y="120" class="sm" text-anchor="middle">persistido em data/chroma/</text>
+
+    <!-- CONSULTA -->
+    <text x="20" y="182" class="phase">CONSULTA (a cada pergunta — app.py)</text>
+
+    <rect class="box" x="20" y="196" width="160" height="56" rx="9"/>
+    <text x="100" y="219" class="lbl" text-anchor="middle">Query do usuário</text>
+    <text x="100" y="237" class="sm" text-anchor="middle">interface Streamlit</text>
+
+    <rect class="box" x="230" y="196" width="150" height="56" rx="9"/>
+    <text x="305" y="219" class="lbl" text-anchor="middle">Embedding</text>
+    <text x="305" y="237" class="sm" text-anchor="middle">mesma MiniLM</text>
+
+    <rect class="box" x="430" y="196" width="160" height="56" rx="9"/>
+    <text x="510" y="219" class="lbl" text-anchor="middle">ChromaDB</text>
+    <text x="510" y="237" class="sm" text-anchor="middle">top-K vizinhos</text>
+
+    <line class="ln" x1="180" y1="224" x2="228" y2="224" marker-end="url(#arrow)"/>
+    <line class="ln" x1="380" y1="224" x2="428" y2="224" marker-end="url(#arrow)"/>
+
+    <!-- split to two paths -->
+    <line class="ln" x1="510" y1="252" x2="510" y2="300"/>
+    <line class="ln" x1="510" y1="300" x2="220" y2="300"/>
+    <line class="ln" x1="510" y1="300" x2="620" y2="300"/>
+    <line class="ln" x1="220" y1="300" x2="220" y2="340" marker-end="url(#arrow)"/>
+    <line class="ln" x1="620" y1="300" x2="620" y2="340" marker-end="url(#arrow)"/>
+
+    <!-- Path A: Busca -->
+    <text x="120" y="332" class="phase" style="fill:var(--accent2)">CAMINHO A — BUSCA</text>
+    <rect class="box bSearch" x="60" y="344" width="300" height="70" rx="9"/>
+    <text x="210" y="368" class="lbl" text-anchor="middle">Resultado estruturado</text>
+    <text x="210" y="388" class="sm" text-anchor="middle">título · categoria · score · trecho</text>
+    <text x="210" y="404" class="sm" text-anchor="middle">search.py</text>
+
+    <!-- Path B: RAG -->
+    <text x="500" y="332" class="phase" style="fill:var(--accent3)">CAMINHO B — CHAT (RAG)</text>
+    <rect class="box bRag" x="470" y="344" width="230" height="70" rx="9"/>
+    <text x="585" y="368" class="lbl" text-anchor="middle">Monta prompt + trechos</text>
+    <text x="585" y="388" class="sm" text-anchor="middle">contexto recuperado</text>
+    <text x="585" y="404" class="sm" text-anchor="middle">rag.py</text>
+
+    <line class="ln" x1="585" y1="414" x2="585" y2="446" marker-end="url(#arrow)"/>
+    <rect class="box bRag" x="470" y="450" width="230" height="56" rx="9"/>
+    <text x="585" y="473" class="lbl" text-anchor="middle">LLM local — Ollama</text>
+    <text x="585" y="491" class="sm" text-anchor="middle">llama3.2:1b</text>
+
+    <line class="ln" x1="585" y1="506" x2="585" y2="538" marker-end="url(#arrow)"/>
+    <rect class="box bRag" x="470" y="542" width="230" height="56" rx="9"/>
+    <text x="585" y="565" class="lbl" text-anchor="middle">Resposta + fontes</text>
+    <text x="585" y="583" class="sm" text-anchor="middle">linguagem natural, ancorada</text>
+  </svg>
+  </div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--accent)"></i> Indexação</span>
+    <span><i class="dot" style="background:var(--accent2)"></i> Caminho de busca</span>
+    <span><i class="dot" style="background:var(--accent3)"></i> Caminho RAG</span>
+  </div>
+
+  <h2>Por que dois caminhos?</h2>
+  <p>Ambos partem da mesma recuperação vetorial (query &rarr; embedding &rarr; top-K no ChromaDB).
+  A diferença é o que acontece depois:</p>
+  <table>
+    <tr><th>Caminho</th><th>Quando usar</th><th>Saída</th></tr>
+    <tr><td><strong>Busca</strong></td><td>Interação estruturada — ver os itens que casaram e seus atributos.</td>
+        <td>Lista de artigos com título, categoria, score de similaridade e trecho.</td></tr>
+    <tr><td><strong>Chat (RAG)</strong></td><td>Interação conversacional — perguntar em linguagem natural.</td>
+        <td>Resposta do LLM ancorada nos trechos recuperados, citando as fontes.</td></tr>
+  </table>
+
+  <h2>Conceitos-chave</h2>
+  <h3>Embedding</h3>
+  <p>Um modelo transforma texto em vetor de 384 números que captura o <em>significado</em>.
+  Textos com sentido parecido ficam próximos no espaço vetorial, mesmo com palavras diferentes.</p>
+  <h3>Busca vetorial (ANN)</h3>
+  <p>O ChromaDB usa vizinhos mais próximos aproximados (HNSW) para achar rápido os vetores
+  mais similares à query. A métrica aqui é <strong>similaridade de cosseno</strong>; o app exibe
+  <code>score = 1 − distância</code> (1 = idêntico).</p>
+  <h3>Chunking</h3>
+  <p>Artigos longos são quebrados em pedaços de ~180 palavras (com 30 de sobreposição) antes de
+  virar vetor. Isso deixa a recuperação precisa — retorna o trecho relevante, não o artigo inteiro.</p>
+  <h3>RAG — Retrieval-Augmented Generation</h3>
+  <p>A busca semântica é a etapa de <em>retrieval</em>. O RAG injeta os trechos recuperados no prompt
+  do LLM, que então responde com base neles. Isso ancora a resposta em fontes reais e reduz alucinação.</p>
+
+  <h2>Componentes do código</h2>
+  <table>
+    <tr><th>Arquivo</th><th>Responsabilidade</th></tr>
+    <tr><td><code>src/config.py</code></td><td>Parâmetros centrais: modelo, dataset, top-K, caminhos.</td></tr>
+    <tr><td><code>src/db.py</code></td><td>Carrega o modelo de embedding e o cliente ChromaDB (uma vez).</td></tr>
+    <tr><td><code>src/ingest.py</code></td><td>Baixa dataset, faz chunk, gera embeddings, popula o banco.</td></tr>
+    <tr><td><code>src/search.py</code></td><td>Busca semântica pura (caminho estruturado).</td></tr>
+    <tr><td><code>src/rag.py</code></td><td>Recuperação + geração via LLM (caminho conversacional).</td></tr>
+    <tr><td><code>src/app.py</code></td><td>Interface Streamlit com o toggle entre os dois modos.</td></tr>
+  </table>
+
+  <h2>Stack</h2>
+  <table>
+    <tr><th>Camada</th><th>Tecnologia</th></tr>
+    <tr><td>Embedding</td><td>all-MiniLM-L6-v2 (sentence-transformers), local, 384 dims</td></tr>
+    <tr><td>Banco vetorial</td><td>ChromaDB, persistente em disco</td></tr>
+    <tr><td>LLM (RAG)</td><td>llama3.2:1b via Ollama</td></tr>
+    <tr><td>Interface</td><td>Streamlit</td></tr>
+    <tr><td>Dados</td><td>SetFit/bbc-news ou ag_news (HuggingFace datasets)</td></tr>
+  </table>
+
+  <p style="margin-top:40px; color:var(--muted); font-size:.85rem">
+    Esta é a primeira página da ajuda. Próximos tópicos podem cobrir: como reindexar,
+    trocar o modelo de embedding e comparar scores, e ajustar o top-K.
+  </p>
+</div>
+</body>
+</html>

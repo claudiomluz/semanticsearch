@@ -1,0 +1,3 @@
+[server]
+# Serve arquivos da pasta ./static em /app/static/ (ex: página de ajuda)
+enableStaticServing = true

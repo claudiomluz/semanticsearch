@@ -9,8 +9,12 @@ from search import search
 from rag import answer
 
 st.set_page_config(page_title="Semantic Search POC", page_icon="🔎")
-st.title("🔎 Semantic Search + RAG")
-st.caption(f"Dataset: {DATASET} · Embedding: MiniLM · LLM: {OLLAMA_MODEL}")
+header_l, header_r = st.columns([4, 1])
+with header_l:
+    st.title("🔎 Semantic Search + RAG")
+    st.caption(f"Dataset: {DATASET} · Embedding: MiniLM · LLM: {OLLAMA_MODEL}")
+with header_r:
+    st.link_button("📖 Ajuda", "/app/static/help.html", use_container_width=True)
 
 mode = st.radio(
     "Modo de interação",
