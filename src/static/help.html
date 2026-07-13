@@ -324,6 +324,62 @@
   <!-- ===== FAQ ===== -->
   <h2>FAQ</h2>
 
+  <!-- Dataset — PT -->
+  <details class="faq lang-pt">
+    <summary>Que dataset é esse e de onde ele vem?</summary>
+    <div class="answer">
+      <p>O projeto usa o <strong>BBC News dataset</strong>, distribuído no HuggingFace como
+      <code>SetFit/bbc-news</code>. São artigos reais publicados no site da <strong>BBC News entre
+      2004 e 2005</strong>. O conjunto foi compilado por Derek Greene e Pádraig Cunningham
+      (University College Dublin) para um artigo de 2006 sobre agrupamento de documentos, e desde
+      então virou um <em>benchmark</em> clássico para classificação e clustering de texto.</p>
+      <p>Ao todo são <strong>2.225 artigos</strong>, divididos em <strong>1.225 de treino</strong>
+      (os que indexamos) e 1.000 de teste. Cada artigo tem uma categoria entre cinco temas:</p>
+      <table>
+        <tr><th>Categoria</th><th>Artigos (treino)</th></tr>
+        <tr><td>business</td><td>286</td></tr>
+        <tr><td>sport</td><td>275</td></tr>
+        <tr><td>politics</td><td>242</td></tr>
+        <tr><td>tech</td><td>212</td></tr>
+        <tr><td>entertainment</td><td>210</td></tr>
+      </table>
+      <p>Os textos são em <strong>inglês</strong>, com prosa jornalística limpa. O tamanho médio é
+      de <strong>~395 palavras por artigo</strong> (variando de 90 a ~4.500). Como esse tamanho é
+      bem maior que o chunk de 180 palavras, a maioria dos artigos gera mais de um chunk — por isso
+      os 1.225 artigos viram ~3.600 vetores no banco.</p>
+      <p>É um dataset pequeno e de licença livre para pesquisa, ideal para uma POC: baixa em
+      segundos, cabe na memória e cobre temas variados o bastante para testar busca semântica.</p>
+    </div>
+  </details>
+
+  <!-- Dataset — EN -->
+  <details class="faq lang-en">
+    <summary>What dataset is this and where does it come from?</summary>
+    <div class="answer">
+      <p>The project uses the <strong>BBC News dataset</strong>, distributed on HuggingFace as
+      <code>SetFit/bbc-news</code>. These are real articles published on the <strong>BBC News
+      website between 2004 and 2005</strong>. The set was compiled by Derek Greene and Pádraig
+      Cunningham (University College Dublin) for a 2006 paper on document clustering, and has since
+      become a classic <em>benchmark</em> for text classification and clustering.</p>
+      <p>There are <strong>2,225 articles</strong> in total, split into <strong>1,225 training</strong>
+      (the ones we index) and 1,000 test. Each article has one category among five topics:</p>
+      <table>
+        <tr><th>Category</th><th>Articles (train)</th></tr>
+        <tr><td>business</td><td>286</td></tr>
+        <tr><td>sport</td><td>275</td></tr>
+        <tr><td>politics</td><td>242</td></tr>
+        <tr><td>tech</td><td>212</td></tr>
+        <tr><td>entertainment</td><td>210</td></tr>
+      </table>
+      <p>The texts are in <strong>English</strong>, with clean journalistic prose. The average size
+      is <strong>~395 words per article</strong> (ranging from 90 to ~4,500). Since that is well
+      above the 180-word chunk, most articles yield more than one chunk — which is why the 1,225
+      articles become ~3,600 vectors in the database.</p>
+      <p>It is a small, research-friendly, freely licensed dataset, ideal for a POC: it downloads in
+      seconds, fits in memory, and covers topics varied enough to test semantic search.</p>
+    </div>
+  </details>
+
   <!-- PT -->
   <details class="faq lang-pt">
     <summary>Por que chunking com 180 palavras e sobreposição de 30?</summary>
