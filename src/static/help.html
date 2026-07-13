@@ -614,6 +614,183 @@
     </div>
   </details>
 
+  <!-- ChromaDB — PT -->
+  <details class="faq lang-pt">
+    <summary>O que é o ChromaDB e o que ele guarda?</summary>
+    <div class="answer">
+      <p>O <strong>ChromaDB</strong> é um <strong>banco de dados vetorial</strong> open-source e
+      <em>embutido</em> — roda dentro do próprio processo Python, sem servidor separado. Foi escolhido
+      para a POC porque instala com <code>pip</code>, tem API simples e persiste em disco sozinho.</p>
+
+      <p><strong>O que cada registro guarda</strong> (definido em <code>ingest.py</code>):</p>
+      <table>
+        <tr><th>Campo</th><th>Conteúdo</th></tr>
+        <tr><td><code>id</code></td><td>identificador do chunk, ex: <code>42-1</code> (artigo 42, chunk 1)</td></tr>
+        <tr><td><code>embedding</code></td><td>o vetor de 384 dimensões</td></tr>
+        <tr><td><code>document</code></td><td>o texto do chunk</td></tr>
+        <tr><td><code>metadata</code></td><td><code>title</code>, <code>category</code>, <code>article_id</code>, <code>chunk</code></td></tr>
+      </table>
+
+      <div class="diagram-box">
+      <svg viewBox="0 0 700 240" role="img" aria-label="Registro e busca no ChromaDB">
+        <defs><style>
+          .card2 { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+          .tab   { fill: var(--accent); }
+          .fname { fill: var(--fg); font: 600 12px -apple-system, sans-serif; }
+          .fval  { fill: var(--muted); font: 11px ui-monospace, monospace; }
+          .cap2  { fill: var(--muted); font: 700 11px -apple-system, sans-serif; letter-spacing: .4px; }
+          .divl  { stroke: var(--border); stroke-width: 1; }
+          .flow  { fill: var(--card); stroke: var(--accent3); stroke-width: 1.5; }
+          .flowl { fill: var(--fg); font: 600 12px -apple-system, sans-serif; }
+          .flows { fill: var(--muted); font: 11px ui-monospace, monospace; }
+          .ln2   { stroke: var(--muted); stroke-width: 1.6; fill: none; color: var(--muted); }
+        </style>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+        </defs>
+
+        <!-- anatomia de um registro -->
+        <text x="20" y="16" class="cap2">UM REGISTRO</text>
+        <rect class="card2" x="20" y="24" width="300" height="192" rx="10"/>
+        <rect class="tab" x="28" y="36" width="6" height="28" rx="2"/>
+        <text x="46" y="48" class="fname">id</text>
+        <text x="46" y="62" class="fval">42-1</text>
+        <line class="divl" x1="28" y1="74" x2="312" y2="74"/>
+        <rect class="tab" x="28" y="84" width="6" height="28" rx="2"/>
+        <text x="46" y="96" class="fname">embedding</text>
+        <text x="46" y="110" class="fval">[0.021, -0.135, …] · 384d</text>
+        <line class="divl" x1="28" y1="122" x2="312" y2="122"/>
+        <rect class="tab" x="28" y="132" width="6" height="28" rx="2"/>
+        <text x="46" y="144" class="fname">document</text>
+        <text x="46" y="158" class="fval">"ad firm wpp s profits…"</text>
+        <line class="divl" x1="28" y1="170" x2="312" y2="170"/>
+        <rect class="tab" x="28" y="180" width="6" height="28" rx="2"/>
+        <text x="46" y="192" class="fname">metadata</text>
+        <text x="46" y="206" class="fval">title · category · article_id · chunk</text>
+        <text x="20" y="232" class="fval">o banco guarda ~3.600 desses</text>
+
+        <!-- fluxo da busca -->
+        <text x="380" y="16" class="cap2">A BUSCA</text>
+        <rect class="flow" x="380" y="26" width="300" height="40" rx="9"/>
+        <text x="530" y="45" class="flowl" text-anchor="middle">vetor da query</text>
+        <text x="530" y="59" class="flows" text-anchor="middle">384d</text>
+        <line class="ln2" x1="530" y1="66" x2="530" y2="84" marker-end="url(#ar2)"/>
+        <rect class="flow" x="380" y="86" width="300" height="52" rx="9"/>
+        <text x="530" y="107" class="flowl" text-anchor="middle">ChromaDB</text>
+        <text x="530" y="123" class="flows" text-anchor="middle">índice HNSW · cosseno</text>
+        <line class="ln2" x1="530" y1="138" x2="530" y2="156" marker-end="url(#ar2)"/>
+        <rect class="flow" x="380" y="158" width="300" height="52" rx="9"/>
+        <text x="530" y="179" class="flowl" text-anchor="middle">top-K vizinhos</text>
+        <text x="530" y="195" class="flows" text-anchor="middle">document + metadata + score</text>
+      </svg>
+      </div>
+
+      <p><strong>Como a busca funciona:</strong> a query vira um vetor pelo mesmo MiniLM e o ChromaDB
+      procura os <strong>top-K vizinhos mais próximos</strong> por <strong>similaridade de cosseno</strong>
+      — a coleção foi criada com <code>hnsw:space=cosine</code>. Devolve, para cada acerto, o texto do
+      chunk, a metadata e a distância (que o app mostra como <code>score = 1 − distância</code>).</p>
+
+      <p><strong>HNSW (busca aproximada):</strong> em vez de comparar a query com todos os vetores um a
+      um (força bruta, lento), o ChromaDB usa um índice HNSW que encontra os vizinhos rápido mesmo com
+      milhões de vetores, trocando um pouco de precisão por muita velocidade. É o "ANN" citado nos conceitos.</p>
+
+      <p><strong>Persistência:</strong> usamos o <code>PersistentClient</code>, que grava tudo em disco em
+      <code>data/chroma/</code>. Nossos ~3.600 vetores ocupam ~37 MB. O banco sobrevive a reiniciar o app,
+      então não é preciso reindexar toda vez. O tamanho acompanha as dimensões do embedding: com um modelo
+      de 768d, o banco dobraria.</p>
+    </div>
+  </details>
+
+  <!-- ChromaDB — EN -->
+  <details class="faq lang-en">
+    <summary>What is ChromaDB and what does it store?</summary>
+    <div class="answer">
+      <p><strong>ChromaDB</strong> is an open-source, <em>embedded</em> <strong>vector database</strong> —
+      it runs inside the Python process itself, with no separate server. It was chosen for the POC because
+      it installs with <code>pip</code>, has a simple API, and persists to disk on its own.</p>
+
+      <p><strong>What each record stores</strong> (defined in <code>ingest.py</code>):</p>
+      <table>
+        <tr><th>Field</th><th>Content</th></tr>
+        <tr><td><code>id</code></td><td>chunk identifier, e.g. <code>42-1</code> (article 42, chunk 1)</td></tr>
+        <tr><td><code>embedding</code></td><td>the 384-dimension vector</td></tr>
+        <tr><td><code>document</code></td><td>the chunk text</td></tr>
+        <tr><td><code>metadata</code></td><td><code>title</code>, <code>category</code>, <code>article_id</code>, <code>chunk</code></td></tr>
+      </table>
+
+      <div class="diagram-box">
+      <svg viewBox="0 0 700 240" role="img" aria-label="Record and search in ChromaDB">
+        <defs><style>
+          .card2 { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+          .tab   { fill: var(--accent); }
+          .fname { fill: var(--fg); font: 600 12px -apple-system, sans-serif; }
+          .fval  { fill: var(--muted); font: 11px ui-monospace, monospace; }
+          .cap2  { fill: var(--muted); font: 700 11px -apple-system, sans-serif; letter-spacing: .4px; }
+          .divl  { stroke: var(--border); stroke-width: 1; }
+          .flow  { fill: var(--card); stroke: var(--accent3); stroke-width: 1.5; }
+          .flowl { fill: var(--fg); font: 600 12px -apple-system, sans-serif; }
+          .flows { fill: var(--muted); font: 11px ui-monospace, monospace; }
+          .ln2   { stroke: var(--muted); stroke-width: 1.6; fill: none; color: var(--muted); }
+        </style>
+        <marker id="ar2e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+        </defs>
+
+        <!-- record anatomy -->
+        <text x="20" y="16" class="cap2">ONE RECORD</text>
+        <rect class="card2" x="20" y="24" width="300" height="192" rx="10"/>
+        <rect class="tab" x="28" y="36" width="6" height="28" rx="2"/>
+        <text x="46" y="48" class="fname">id</text>
+        <text x="46" y="62" class="fval">42-1</text>
+        <line class="divl" x1="28" y1="74" x2="312" y2="74"/>
+        <rect class="tab" x="28" y="84" width="6" height="28" rx="2"/>
+        <text x="46" y="96" class="fname">embedding</text>
+        <text x="46" y="110" class="fval">[0.021, -0.135, …] · 384d</text>
+        <line class="divl" x1="28" y1="122" x2="312" y2="122"/>
+        <rect class="tab" x="28" y="132" width="6" height="28" rx="2"/>
+        <text x="46" y="144" class="fname">document</text>
+        <text x="46" y="158" class="fval">"ad firm wpp s profits…"</text>
+        <line class="divl" x1="28" y1="170" x2="312" y2="170"/>
+        <rect class="tab" x="28" y="180" width="6" height="28" rx="2"/>
+        <text x="46" y="192" class="fname">metadata</text>
+        <text x="46" y="206" class="fval">title · category · article_id · chunk</text>
+        <text x="20" y="232" class="fval">the DB holds ~3,600 of these</text>
+
+        <!-- search flow -->
+        <text x="380" y="16" class="cap2">THE SEARCH</text>
+        <rect class="flow" x="380" y="26" width="300" height="40" rx="9"/>
+        <text x="530" y="45" class="flowl" text-anchor="middle">query vector</text>
+        <text x="530" y="59" class="flows" text-anchor="middle">384d</text>
+        <line class="ln2" x1="530" y1="66" x2="530" y2="84" marker-end="url(#ar2e)"/>
+        <rect class="flow" x="380" y="86" width="300" height="52" rx="9"/>
+        <text x="530" y="107" class="flowl" text-anchor="middle">ChromaDB</text>
+        <text x="530" y="123" class="flows" text-anchor="middle">HNSW index · cosine</text>
+        <line class="ln2" x1="530" y1="138" x2="530" y2="156" marker-end="url(#ar2e)"/>
+        <rect class="flow" x="380" y="158" width="300" height="52" rx="9"/>
+        <text x="530" y="179" class="flowl" text-anchor="middle">top-K neighbors</text>
+        <text x="530" y="195" class="flows" text-anchor="middle">document + metadata + score</text>
+      </svg>
+      </div>
+
+      <p><strong>How search works:</strong> the query becomes a vector via the same MiniLM, and ChromaDB
+      looks for the <strong>top-K nearest neighbors</strong> by <strong>cosine similarity</strong> — the
+      collection was created with <code>hnsw:space=cosine</code>. For each hit it returns the chunk text,
+      the metadata, and the distance (which the app shows as <code>score = 1 − distance</code>).</p>
+
+      <p><strong>HNSW (approximate search):</strong> instead of comparing the query against every vector
+      one by one (brute force, slow), ChromaDB uses an HNSW index that finds neighbors quickly even with
+      millions of vectors, trading a bit of accuracy for a lot of speed. This is the "ANN" mentioned in the
+      concepts.</p>
+
+      <p><strong>Persistence:</strong> we use <code>PersistentClient</code>, which writes everything to disk
+      in <code>data/chroma/</code>. Our ~3,600 vectors take up ~37 MB. The database survives restarting the
+      app, so there is no need to reindex every time. Its size scales with the embedding dimensions: with a
+      768d model, the database would double.</p>
+    </div>
+  </details>
+
   <p style="margin-top:40px; color:var(--muted); font-size:.85rem">
     <span class="lang-pt">Esta é a primeira página da ajuda. Próximos tópicos podem cobrir: como reindexar,
     trocar o modelo de embedding e comparar scores, e ajustar o top-K.</span>
