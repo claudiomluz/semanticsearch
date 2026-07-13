@@ -337,6 +337,49 @@
       consecutivos. Uma frase ou ideia que cai bem na fronteira de dois chunks não fica cortada
       ao meio — o overlap garante que ela apareça inteira em pelo menos um dos chunks. Uma faixa
       comum de sobreposição é 10–20%.</p>
+
+      <div class="diagram-box">
+      <svg viewBox="0 0 700 205" role="img" aria-label="Diagrama de chunking com sobreposição">
+        <defs><style>
+          .wbar { fill: var(--code-bg); stroke: var(--border); stroke-width: 1.2; }
+          .ck   { fill: var(--accent); fill-opacity: .13; stroke: var(--accent); stroke-width: 1.5; }
+          .clab { fill: var(--fg); font: 600 12px -apple-system, sans-serif; }
+          .ov   { fill: var(--accent3); fill-opacity: .22; }
+          .cap  { fill: var(--muted); font: 11px ui-monospace, monospace; }
+          .ovl  { fill: var(--accent3); font: 700 11px -apple-system, sans-serif; }
+          .dim  { stroke: var(--muted); stroke-width: 1; fill: none; }
+        </style></defs>
+
+        <!-- overlap bands (atrás) -->
+        <rect class="ov" x="233" y="54" width="43" height="102"/>
+        <rect class="ov" x="447" y="54" width="42" height="102"/>
+
+        <!-- word stream bar -->
+        <text x="20" y="16" class="cap">texto do artigo — fluxo de palavras →</text>
+        <rect class="wbar" x="20" y="24" width="640" height="20" rx="4"/>
+
+        <!-- chunks escalonados -->
+        <rect class="ck" x="20"  y="60"  width="256" height="24" rx="6"/>
+        <text x="148" y="76" class="clab" text-anchor="middle">chunk 1</text>
+        <rect class="ck" x="233" y="94"  width="256" height="24" rx="6"/>
+        <text x="361" y="110" class="clab" text-anchor="middle">chunk 2</text>
+        <rect class="ck" x="447" y="128" width="213" height="24" rx="6"/>
+        <text x="553" y="144" class="clab" text-anchor="middle">chunk 3</text>
+
+        <!-- rótulos de sobreposição -->
+        <text x="254" y="90" class="ovl" text-anchor="middle">30</text>
+        <text x="468" y="124" class="ovl" text-anchor="middle">30</text>
+
+        <!-- dimensão do chunk -->
+        <path class="dim" d="M20,170 L20,176 M276,170 L276,176 M20,173 L276,173"/>
+        <text x="148" y="192" class="cap" text-anchor="middle">180 palavras</text>
+        <text x="254" y="192" class="ovl" text-anchor="start">◼ zonas laranja = sobreposição (30)</text>
+      </svg>
+      </div>
+      <p style="font-size:.9rem; color:var(--muted); margin-top:6px">Cada chunk vira um vetor. As
+      zonas em laranja são as ~30 palavras que o fim de um chunk repete no começo do próximo, para
+      não cortar ideias na fronteira.</p>
+
       <p><strong>O que muda ao aumentar ou diminuir:</strong></p>
       <ul>
         <li><strong>Chunk maior:</strong> menos vetores (menos disco, indexação mais rápida),
@@ -370,6 +413,49 @@
       <p>The <strong>30-word overlap (~17%)</strong> is the seam between consecutive chunks. A
       sentence or idea that falls right on the boundary of two chunks is not cut in half — the
       overlap ensures it appears whole in at least one chunk. A common overlap range is 10–20%.</p>
+
+      <div class="diagram-box">
+      <svg viewBox="0 0 700 205" role="img" aria-label="Chunking with overlap diagram">
+        <defs><style>
+          .wbar { fill: var(--code-bg); stroke: var(--border); stroke-width: 1.2; }
+          .ck   { fill: var(--accent); fill-opacity: .13; stroke: var(--accent); stroke-width: 1.5; }
+          .clab { fill: var(--fg); font: 600 12px -apple-system, sans-serif; }
+          .ov   { fill: var(--accent3); fill-opacity: .22; }
+          .cap  { fill: var(--muted); font: 11px ui-monospace, monospace; }
+          .ovl  { fill: var(--accent3); font: 700 11px -apple-system, sans-serif; }
+          .dim  { stroke: var(--muted); stroke-width: 1; fill: none; }
+        </style></defs>
+
+        <!-- overlap bands (behind) -->
+        <rect class="ov" x="233" y="54" width="43" height="102"/>
+        <rect class="ov" x="447" y="54" width="42" height="102"/>
+
+        <!-- word stream bar -->
+        <text x="20" y="16" class="cap">article text — stream of words →</text>
+        <rect class="wbar" x="20" y="24" width="640" height="20" rx="4"/>
+
+        <!-- staggered chunks -->
+        <rect class="ck" x="20"  y="60"  width="256" height="24" rx="6"/>
+        <text x="148" y="76" class="clab" text-anchor="middle">chunk 1</text>
+        <rect class="ck" x="233" y="94"  width="256" height="24" rx="6"/>
+        <text x="361" y="110" class="clab" text-anchor="middle">chunk 2</text>
+        <rect class="ck" x="447" y="128" width="213" height="24" rx="6"/>
+        <text x="553" y="144" class="clab" text-anchor="middle">chunk 3</text>
+
+        <!-- overlap labels -->
+        <text x="254" y="90" class="ovl" text-anchor="middle">30</text>
+        <text x="468" y="124" class="ovl" text-anchor="middle">30</text>
+
+        <!-- chunk dimension -->
+        <path class="dim" d="M20,170 L20,176 M276,170 L276,176 M20,173 L276,173"/>
+        <text x="148" y="192" class="cap" text-anchor="middle">180 words</text>
+        <text x="254" y="192" class="ovl" text-anchor="start">◼ orange zones = overlap (30)</text>
+      </svg>
+      </div>
+      <p style="font-size:.9rem; color:var(--muted); margin-top:6px">Each chunk becomes one vector.
+      The orange zones are the ~30 words that the end of one chunk repeats at the start of the next,
+      so ideas are not cut at the boundary.</p>
+
       <p><strong>What changes when you increase or decrease it:</strong></p>
       <ul>
         <li><strong>Larger chunk:</strong> fewer vectors (less storage, faster indexing), but if
