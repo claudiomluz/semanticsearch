@@ -532,6 +532,88 @@
     </div>
   </details>
 
+  <!-- Embedding — PT -->
+  <details class="faq lang-pt">
+    <summary>O que é o MiniLM e o que significam as 384 dimensões?</summary>
+    <div class="answer">
+      <p>O <strong>MiniLM</strong> é o modelo que gera os embeddings. Ele é uma
+      <strong>rede neural</strong> do tipo <strong>Transformer</strong> — a mesma família dos LLMs
+      (como o qwen usado no chat), só que muito menor e com função diferente: em vez de gerar texto,
+      ele lê um texto e o comprime num único vetor.</p>
+      <p>A versão usada, <code>all-MiniLM-L6-v2</code>, tem <strong>6 blocos Transformer</strong>
+      (o "L6" no nome) e cerca de <strong>22 milhões de parâmetros</strong> — contra os 3 bilhões do
+      qwen2.5:3b, é ~140× menor. Ele nasceu por <em>destilação</em>: uma rede maior "ensinou" uma
+      menor a imitá-la, deixando o modelo leve e rápido sem perder muita qualidade. Depois foi
+      ajustado especificamente para gerar embeddings de sentença.</p>
+      <p><strong>Como ele transforma texto em vetor</strong> (o texto de entrada aqui é cada chunk
+      preparado na etapa anterior, não o artigo inteiro):</p>
+      <ul>
+        <li>o texto (cada chunk da etapa anterior) é dividido em <em>tokens</em>;</li>
+        <li>os tokens passam pelos 6 blocos (atenção + camadas densas);</li>
+        <li>cada token vira um vetor;</li>
+        <li>tira-se a média de todos (<em>mean pooling</em>) → um único vetor que representa o chunk inteiro.</li>
+      </ul>
+      <p>Esse vetor final tem <strong>384 dimensões</strong>, ou seja, é uma lista de 384 números:</p>
+      <pre><code>"WPP profits surge" → [0.021, -0.135, 0.078, …, 0.044]
+                       └──────── 384 valores ────────┘</code></pre>
+      <p>Cada número é uma coordenada num espaço de 384 eixos. Assim como um ponto no plano tem 2
+      números (x, y) e no espaço 3D tem 3, aqui o texto vira um ponto com 384 coordenadas —
+      impossível de desenhar, mas a matemática é a mesma. <strong>Textos com significado parecido
+      ficam próximos nesse espaço</strong>, e a busca mede essa proximidade (similaridade de cosseno).</p>
+      <p>O número 384 é uma escolha do próprio modelo. É um equilíbrio: mais dimensões captam nuances
+      mais finas, mas ocupam mais disco e deixam a busca mais lenta; menos dimensões são mais leves.</p>
+      <table>
+        <tr><th>Modelo</th><th>Dimensões</th></tr>
+        <tr><td>all-MiniLM-L6-v2 (nosso)</td><td>384</td></tr>
+        <tr><td>all-mpnet-base-v2</td><td>768</td></tr>
+        <tr><td>OpenAI text-embedding-3-small</td><td>1536</td></tr>
+      </table>
+      <p>Na prática: cada chunk ocupa 384 números no ChromaDB. Trocar por um modelo de 768 dimensões
+      dobraria o tamanho do banco e faria a busca comparar vetores duas vezes maiores.</p>
+    </div>
+  </details>
+
+  <!-- Embedding — EN -->
+  <details class="faq lang-en">
+    <summary>What is MiniLM and what do the 384 dimensions mean?</summary>
+    <div class="answer">
+      <p><strong>MiniLM</strong> is the model that generates the embeddings. It is a
+      <strong>neural network</strong> of the <strong>Transformer</strong> type — the same family as
+      LLMs (like the qwen used in chat), only much smaller and with a different job: instead of
+      generating text, it reads a text and compresses it into a single vector.</p>
+      <p>The version used, <code>all-MiniLM-L6-v2</code>, has <strong>6 Transformer blocks</strong>
+      (the "L6" in the name) and about <strong>22 million parameters</strong> — versus the 3 billion
+      of qwen2.5:3b, it is ~140× smaller. It was born through <em>distillation</em>: a larger network
+      "taught" a smaller one to imitate it, making the model light and fast without losing much
+      quality. It was then fine-tuned specifically to produce sentence embeddings.</p>
+      <p><strong>How it turns text into a vector</strong> (the input text here is each chunk
+      prepared in the previous step, not the whole article):</p>
+      <ul>
+        <li>the text (each chunk from the previous step) is split into <em>tokens</em>;</li>
+        <li>the tokens pass through the 6 blocks (attention + dense layers);</li>
+        <li>each token becomes a vector;</li>
+        <li>all of them are averaged (<em>mean pooling</em>) → a single vector representing the whole chunk.</li>
+      </ul>
+      <p>That final vector has <strong>384 dimensions</strong>, i.e. it is a list of 384 numbers:</p>
+      <pre><code>"WPP profits surge" → [0.021, -0.135, 0.078, …, 0.044]
+                       └──────── 384 values ────────┘</code></pre>
+      <p>Each number is a coordinate in a space of 384 axes. Just as a point on a plane has 2
+      numbers (x, y) and in 3D space has 3, here the text becomes a point with 384 coordinates —
+      impossible to draw, but the math is the same. <strong>Texts with similar meaning end up close
+      in this space</strong>, and search measures that closeness (cosine similarity).</p>
+      <p>The number 384 is a choice of the model itself. It is a trade-off: more dimensions capture
+      finer nuance but take more storage and make search slower; fewer dimensions are lighter.</p>
+      <table>
+        <tr><th>Model</th><th>Dimensions</th></tr>
+        <tr><td>all-MiniLM-L6-v2 (ours)</td><td>384</td></tr>
+        <tr><td>all-mpnet-base-v2</td><td>768</td></tr>
+        <tr><td>OpenAI text-embedding-3-small</td><td>1536</td></tr>
+      </table>
+      <p>In practice: each chunk takes up 384 numbers in ChromaDB. Swapping for a 768-dimension model
+      would double the database size and make search compare vectors twice as large.</p>
+    </div>
+  </details>
+
   <p style="margin-top:40px; color:var(--muted); font-size:.85rem">
     <span class="lang-pt">Esta é a primeira página da ajuda. Próximos tópicos podem cobrir: como reindexar,
     trocar o modelo de embedding e comparar scores, e ajustar o top-K.</span>
